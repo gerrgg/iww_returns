@@ -1,28 +1,73 @@
 jQuery(document).ready(function( $ ){
-  $('.item-button').click( function(){
+  $('form').on('click', '.item-button', function(){
     var id = $(this).attr('id');
-    var order = $(this).attr('order');
-      $('.' + id + '_type').toggle('fast');
-      $('.' + id + '_qty').toggle('fast');
-      $('.' + id + '_reason').toggle('fast');
-      var valid = $('#' + id + '_valid');
-      if( ! valid.length ){
-        $(this).append( '<input id="' + id + '_valid" type="hidden" name="returns['+ order +'][valid]" value=true />' );
-      } else {
-        valid.remove();
+    var $show = $('.' + id + '_show');
+    var $type =   $('.' + id + '_type');
+    var $qty = $('.' + id + '_qty');
+    var $reason = $('.' + id + '_reason');
+    var $exchange = $('.' + id + '_exchange');
+    var $thumb = $('#' + id + '_thumb');
+    // use class 'push' keep track of what is being returned
+    ( ! $(this).hasClass('push') ) ? $(this).addClass('push') : $(this).removeClass('push');
+    // used for visual confirmation of what is being returned
+    ( $thumb.attr('aria-checked') === 'false' ) ? $thumb.attr( 'aria-checked', 'true' ) : $thumb.attr( 'aria-checked', 'false' );
+    // $show is the div which holds all the inner divs, allows for closing without losing data
+
+    // Init returns array
+    $show.toggle('fast');
+
+    $qty.on( 'blur', 'input[type=tel]', function(){
+      value = $(this).val();
+      max = $(this).attr('max');
+      if( +value > +max ){
+        $(this).val( max );
       }
 
+      if( ! $type.hasClass( 'show' ) ){
+        $type.addClass( 'show' )
+        $type.toggle('fast');
+      }
 
-    } );
-  // $('input[type="tel"]').blur(function(){
-  //   var value = $(this).val();
-  //   var min = $(this).attr('min');
-  //   var max = $(this).attr('max');
-  //   console.log( value, max );
-  //   if( value > +max ){
-  //     $(this).val( +max );
-  //   }
-  // });
+    });
 
+    $type.on('click', 'input[type=radio]', function(){
+      $type = $(this).val();
+      if ( $type === 'return' ) {
+        $reason.toggle('fast')
+        $exchange.hide();
+      } else {
+        $exchange.toggle('fast');
+        $reason.hide();
+      }
+    });
 
+    $exchange.on('blur', 'input[type=tel]', function(){
+      // find the # of items being exchanged
+      var max = $qty.find('input[type=tel]').val();
+      // result total on blur
+      var total = 0;
+      // add up all the qtys
+      $exchange.find('input[type=tel]').each(function(){
+        total += +$(this).val();
+      });
+
+      left = max - total;
+      // if the exchanges exceed the # of returns
+      if( left < 0 ){
+        // grab the current input e.g. 18
+        input = $(this).val();
+        // the input + what is left is the mininum number allowed to be input
+        awnser = +input + +left;
+        $(this).val( awnser );
+        left = awnser
+      }
+      // TODO: Show counter
+      // $count.html( left );
+    });
+
+    });
+    // TODO: Find a way to pass all this data to an array before pushing!
+    $('#submit_preview_btn').click(function(){
+      console.log( returns );
+    });
 });
