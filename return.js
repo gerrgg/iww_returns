@@ -7,18 +7,20 @@ jQuery(document).ready(function( $ ){
     var $reason = $('.' + id + '_reason');
     var $exchange = $('.' + id + '_exchange');
     var $thumb = $('#' + id + '_thumb');
+
     // use class 'push' keep track of what is being returned
     ( ! $(this).hasClass('push') ) ? $(this).addClass('push') : $(this).removeClass('push');
     // used for visual confirmation of what is being returned
     ( $thumb.attr('aria-checked') === 'false' ) ? $thumb.attr( 'aria-checked', 'true' ) : $thumb.attr( 'aria-checked', 'false' );
     // $show is the div which holds all the inner divs, allows for closing without losing data
+    $show.toggle('fast');
 
     // Init returns array
-    $show.toggle('fast');
 
     $qty.on( 'blur', 'input[type=tel]', function(){
       value = $(this).val();
       max = $(this).attr('max');
+
       if( +value > +max ){
         $(this).val( max );
       }
@@ -28,17 +30,20 @@ jQuery(document).ready(function( $ ){
         $type.toggle('fast');
       }
 
+      arr.qty = value;
+
     });
 
     $type.on('click', 'input[type=radio]', function(){
-      $type = $(this).val();
-      if ( $type === 'return' ) {
-        $reason.toggle('fast')
+      type = $(this).val();
+      if ( type === 'return' ) {
         $exchange.hide();
+        $reason.toggle('fast');
       } else {
-        $exchange.toggle('fast');
         $reason.hide();
+        $exchange.toggle('fast');
       }
+      arr.type = type
     });
 
     $exchange.on('blur', 'input[type=tel]', function(){
@@ -59,11 +64,17 @@ jQuery(document).ready(function( $ ){
         // the input + what is left is the mininum number allowed to be input
         awnser = +input + +left;
         $(this).val( awnser );
-        left = awnser
+        left = awnser;
       }
       // TODO: Show counter
       // $count.html( left );
+
+      arr.exchange = total
+      // Maybe add a confirm button at bottom of each item, listing exactly what they are confirming
+      // TYPE - ITEM - QTY
+      // CONFIRM
     });
+
 
     });
     // TODO: Find a way to pass all this data to an array before pushing!
